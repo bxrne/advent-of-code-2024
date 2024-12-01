@@ -6,7 +6,30 @@ import (
 	"sort"
 )
 
-func SortAndMerge(pairs []Pair) []Pair {
+// Builds a frequency map of integers from the right list
+func buildFrequencyMap(nums []int) map[int]int {
+	frequencyMap := make(map[int]int)
+	for _, num := range nums {
+		frequencyMap[num]++
+	}
+	return frequencyMap
+}
+
+// Calculates the similarity score based on frequencies of numbers from the right list
+func calculateSimilarityScore(leftList, rightList []int) int {
+	frequencyMap := buildFrequencyMap(rightList)
+	similarityScore := 0
+
+	for _, num := range leftList {
+		if count, found := frequencyMap[num]; found {
+			similarityScore += num * count
+		}
+	}
+
+	return similarityScore
+}
+
+func sortAndMerge(pairs []Pair) []Pair {
 	firsts := make([]int, len(pairs))
 	seconds := make([]int, len(pairs))
 
@@ -39,7 +62,7 @@ func main() {
 
 	// To match them up, we can vertically sort them beside each other
 	data := fileReader.GetData()
-	sortedData := SortAndMerge(data)
+	sortedData := sortAndMerge(data)
 
 	fmt.Printf("Min (%d, %d)\n", sortedData[0].first, sortedData[0].second)
 	fmt.Printf("Max (%d, %d)\n", sortedData[len(sortedData)-1].first, sortedData[len(sortedData)-1].second)
@@ -56,5 +79,16 @@ func main() {
 	}
 
 	fmt.Println("Total difference:", totalDifference)
+
+	leftList := make([]int, len(sortedData))
+	rightList := make([]int, len(sortedData))
+
+	for i, pair := range sortedData {
+		leftList[i] = pair.first
+		rightList[i] = pair.second
+	}
+
+	similarityScore := calculateSimilarityScore(leftList, rightList)
+	fmt.Printf("Similarity Score: %d\n", similarityScore)
 
 }
